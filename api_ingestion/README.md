@@ -6,11 +6,21 @@ The API ingestion process is a fully automated, generic/reproducible, production
 
 For demonstration, [NYC OpenData's API for Restaurant Inspection Results](https://data.cityofnewyork.us/Health/DOHMH-New-York-City-Restaurant-Inspection-Results/43nn-pn8j) are ingested in a public RDS instance for analysis
 
+### Prerequisites:
+
+1. Python environment with additional libraries
+```
+pip install sodapy
+pip install pandas
+```
+
+2. Access to a Spark environment (not provided)
+
+3. RDS environment (provided) 
+
 ### HOW-TO Execute (Python, Spark and RDS):
 
 ```
-pip install sodapy 
-pip install pandas
 python ingest_api_to_rds.py -d restaurants
 ```
 
@@ -44,14 +54,18 @@ df = spark.read.format(file_type) \
 df.printSchema()
 ```
 
-2. Paste the output in RDS and build the view to dedupe records on camis (unique restaurant identifier) for the latest inspection_date 
+2. Paste the output in RDS and create ```flatten_raw_restaurants.sql```
 
-3. Execute ```v_restaurants.sql```
+3. Execute ```flatten_raw_restaurants.sql``` on RDS
 
-4. Verify Results (RDS):
+4. Verify Results:
 
 ```
-postgres=> select * from public.v_restaurants limit 100;
+--raw JSON results
+postgres=> select * from public.json_restaurant_inspections limit 100;
+
+--flattened results
+postgres=> select * from public.raw_restaurant_inspections limit 100;
 ```
 
 ## Data Quality Tests:
@@ -111,7 +125,7 @@ join (select camis, max(inspection_date) as inspection_date
       group by 1) as b on a.camis = b.camis and a.inspection_date = b.inspection_date;
 ```
 
-## Sample analysis:
+## Analysis:
 
 1. Inspection results aggregated by zipcode:
 ```
@@ -141,7 +155,7 @@ postgres=> select dba, count(violation_code) from public.inspection_snapshot gro
 
 _Ouch._
 
-## Future Improvements:
+## Planned Improvements:
 1. A dimensional model more specific to business use case, including storing the history using Slowly Changing Dimensions and each dimension in separate tables with data backfilled for time, date, address, cuisines, restaurants and grade
 2. It would’ve been interesting to perform more interesting analysis such as which/how many restaurants had their grades improve overtime, or which zipcodes had the worst violations in the city
 3. UPSERT / MERGE into the destination table instead of TRUNCATE / INSERT to overwrite data that is updated, and perform no action if stays the same
