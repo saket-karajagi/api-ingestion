@@ -12,9 +12,9 @@ python ingest_api_to_rds.py -d restaurants
 
 The argument peeks the config.py file for the following required inputs:
 
-API endpoint / URL
-API access key
-NYS dataset_id
+* API endpoint / URL
+* API access key
+* NYS dataset_id
 
 ## One-time Schema Inference (Spark & RDS):
 
@@ -22,7 +22,7 @@ Run the following code in Spark
 
 ```
 #File location and type
-file_location = "/FileStore/tables/LoanStats_securev1_2019Q1_clean.csv"
+file_location = "/FileStore/tables/restaurants.csv"
 file_type = "csv"
 
 #CSV options
