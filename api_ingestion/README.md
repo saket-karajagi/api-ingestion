@@ -123,7 +123,7 @@ postgres=> select zipcode, grade, count(*) from public.inspection_snapshot group
 postgres=> select * from public.inspection_snapshot where dba = 'FELIDIA RESTAURANT';
 ```
 
-_ _Not to throw anyone under the bus
+_ _Not to throw anyone under the bus_ _
 
 3. Distribution of cuisines in NYC
 
@@ -131,7 +131,7 @@ _ _Not to throw anyone under the bus
 postgres=> select cuisine, count(*) from public.inspection_snapshot group by 1;
 ```
 
-_ _American cuisine restaurants had the majority
+_ _American cuisine restaurants had the majority_ _
 
 4. Find the top 100 restaurants with the most violations
 
@@ -139,7 +139,7 @@ _ _American cuisine restaurants had the majority
 postgres=> select dba, count(violation_code) from public.inspection_snapshot group by 1 order by 2 desc limit 100;
 ```
 
-_ _Ouch.
+_ _Ouch._ _
 
 ## Future Improvements:
 1. A dimensional model more specific to business use case, including storing the history using Slowly Changing Dimensions and each dimension in separate tables with data backfilled for time, date, address, cuisines, restaurants and grade
