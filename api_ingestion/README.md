@@ -54,7 +54,7 @@ df.printSchema()
 postgres=> select * from public.v_restaurants limit 100;
 ```
 
-## DQ Tests (RDS):
+## Data Quality Tests:
 
 
 1. Records count match the csv file:
@@ -97,7 +97,7 @@ postgres=> select * from
 4. Schema inference is not completely accurate in pandas/spark as it only infers off of a chunk of the entire dataset. Some manual trial-and-error had to be performed to get the final view correct.
 5. Some more error logging and testing could’ve been done to improve the process with more time
 
-## Data Model / BI Extract:
+## Data Model:
 
 *Since the data extract came from an administrative system, it was unclear what the grain of the data was or what each row in the dataset represents.
 
@@ -123,17 +123,23 @@ postgres=> select zipcode, grade, count(*) from public.inspection_snapshot group
 postgres=> select * from public.inspection_snapshot where dba = 'FELIDIA RESTAURANT';
 ```
 
-3. Distribution of cuisines in NYC (American cuisine restaurants had the majority)
+_ _Not to throw anyone under the bus
+
+3. Distribution of cuisines in NYC
 
 ```
 postgres=> select cuisine, count(*) from public.inspection_snapshot group by 1;
 ```
+
+_ _American cuisine restaurants had the majority
 
 4. Find the top 100 restaurants with the most violations
 
 ```
 postgres=> select dba, count(violation_code) from public.inspection_snapshot group by 1 order by 2 desc limit 100;
 ```
+
+_ _Ouch.
 
 ## Future Improvements:
 1. A dimensional model more specific to business use case, including storing the history using Slowly Changing Dimensions and each dimension in separate tables with data backfilled for time, date, address, cuisines, restaurants and grade
