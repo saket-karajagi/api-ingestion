@@ -2,7 +2,9 @@
 
 ## Overview:
 
-The ingest_api_to_rds process is a fully automated, v1 production-ready ELT process that is generic (can work for any API endpoint with minimal setup), and uses a schema-on-read methodology to account for upstream schema changes. The data is ingested in Postgres RDS for analytical purposes.
+The API ingestion process is a fully automated, generic/reproducible, production-ready ELT process that can work for any API endpoint with minimal setup, and uses a schema-on-read methodology to account for upstream schema changes. The data is ingested in Postgres RDS for analytical purposes.
+
+For demonstration, [NYC OpenData's API for Restaurant Inspection Results](https://data.cityofnewyork.us/Health/DOHMH-New-York-City-Restaurant-Inspection-Results/43nn-pn8j) are ingested in a public RDS instance for analysis
 
 ### HOW-TO Execute (Python, Spark and RDS):
 
