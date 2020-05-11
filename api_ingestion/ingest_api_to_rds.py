@@ -6,6 +6,22 @@ from sodapy import Socrata
 from config import molekule_db, api_config
 from datetime import datetime
 
+def field_builder(field_names, build_type):
+    field_builder = ""
+    last_field = field_names[-1]
+    for i in range(0, len(field_names) - 1):
+        field = field_names[i]
+        if build_type == 'destination':
+            field_builder += f"{field}, "
+        elif build_type == 'staging':
+            field_builder += f'"{field}" varchar, '
+    if build_type == 'destination':
+        field_builder += f"{last_field}"
+    elif build_type == 'staging':
+        field_builder += f'"{last_field}" varchar'
+        
+    return field_builder
+
 def extract_api(url, key, dataset_id):
     date = datetime.today().strftime('%Y-%m-%d')
     client = Socrata(f"{url}", f"{key}")
@@ -26,12 +42,7 @@ def extract_api(url, key, dataset_id):
 def create_staging_object(cursor, field_names, table_name):
     cursor.execute(f"""DROP TABLE IF EXISTS {table_name}_staging;""")
 
-    field_builder = ""
-    for i in range(0, len(field_names) - 1):
-        field = field_names[i]
-        field_builder += f'"{field}" varchar, '
-    last_field = field_names[-1]
-    field_builder += f'"{last_field}" varchar'
+    fields = field_builder(field_names, build_type='staging')
 
     print("creating staging table\n")
     create_staging_table_sql = f"""CREATE TABLE {table_name}_staging({field_builder});"""
@@ -50,12 +61,7 @@ def load_destination_object(cursor, field_names, table_name):
     cursor.execute(trunc_destination_table_sql)
     print(trunc_destination_table_sql + '\n')
 
-    field_builder = ""
-    for i in range(0, len(field_names) - 1):
-        field = field_names[i]
-        field_builder += f"{field}, "
-    last_field = field_names[-1]
-    field_builder += f"{last_field}"
+    fields = field_builder(field_names, build_type='destination')
 
     load_destination_table_sql = f"""INSERT INTO {table_name}(data_blob)\
     SELECT\
@@ -64,6 +70,9 @@ def load_destination_object(cursor, field_names, table_name):
     print("loading destination table")
     cursor.execute(load_destination_table_sql)
     print(load_destination_table_sql + '\n')
+
+def transform_fact_and_dimensions(cursor):
+    
 
 def main():
     parser = argparse.ArgumentParser(description='Obtain dataset name')
