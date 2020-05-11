@@ -6,7 +6,7 @@ from sodapy import Socrata
 from config import molekule_db, api_config
 from datetime import datetime
 
-def extract_data(url, key, dataset_id):
+def extract_api(url, key, dataset_id):
     date = datetime.today().strftime('%Y-%m-%d')
     client = Socrata(f"{url}", f"{key}")
     print("extracting data from NYC Open Data\n")
@@ -23,7 +23,7 @@ def extract_data(url, key, dataset_id):
             row_count += 1
     return f'restaurants_{date}.csv'
 
-def create_staging_table(cursor, field_names, table_name):
+def create_staging_object(cursor, field_names, table_name):
     cursor.execute(f"""DROP TABLE IF EXISTS {table_name}_staging;""")
 
     field_builder = ""
@@ -38,14 +38,14 @@ def create_staging_table(cursor, field_names, table_name):
     print(create_staging_table_sql + '\n')
     cursor.execute(create_staging_table_sql)
 
-def load_staging_table(cursor, file_name, table_name):
+def load_staging_object(cursor, file_name, table_name):
     load_staging_table_sql = f"""COPY {table_name}_staging from STDIN CSV HEADER;"""
     with open(file_name, 'r') as f:
         print("loading staging table\n")
         cursor.copy_expert(load_staging_table_sql, f)
         print(load_staging_table_sql + '\n')
 
-def load_destination_table(cursor, field_names, table_name):
+def load_destination_object(cursor, field_names, table_name):
     trunc_destination_table_sql = f"""TRUNCATE TABLE {table_name};"""
     cursor.execute(trunc_destination_table_sql)
     print(trunc_destination_table_sql + '\n')
@@ -81,7 +81,7 @@ def main():
       port = molekule_db['port'],
       database = molekule_db['database'])
 
-    csv_file = extract_data(url, key, dataset_id)
+    csv_file = extract_api(url, key, dataset_id)
     
     cursor = connection.cursor()
 
@@ -89,9 +89,9 @@ def main():
         reader = csv.reader(f)
         field_names = next(reader)
 
-    create_staging_table(cursor, field_names, dataset_to_ingest)
-    load_staging_table(cursor, csv_file, dataset_to_ingest)
-    load_destination_table(cursor, field_names, dataset_to_ingest)
+    create_staging_object(cursor, field_names, dataset_to_ingest)
+    load_staging_object(cursor, csv_file, dataset_to_ingest)
+    load_destination_object(cursor, field_names, dataset_to_ingest)
 
     connection.commit()
 

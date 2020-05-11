@@ -1,8 +1,10 @@
-# API Ingestion Process
+# API Ingestion
 
-## Solution (Python and RDS):
+## Overview:
 
-The ingest_api_to_rds process is a fully automated, v1 production-ready ELT process that is generic (can work for any API endpoint with minimal setup), and uses a schema-on-read methodology to account for upstream schema changes. The data is ingested in Postgres RDS for analytical purposes. The process can be executed as below:
+The ingest_api_to_rds process is a fully automated, v1 production-ready ELT process that is generic (can work for any API endpoint with minimal setup), and uses a schema-on-read methodology to account for upstream schema changes. The data is ingested in Postgres RDS for analytical purposes.
+
+### HOW-TO Execute (Python, Spark and RDS):
 
 ```
 pip install sodapy 
@@ -16,9 +18,9 @@ The argument peeks the config.py file for the following required inputs:
 * API access key
 * NYS dataset_id
 
-## One-time Schema Inference (Spark & RDS):
+### One-time Schema Inference
 
-Run the following code in Spark
+1. Spark Environment:
 
 ```
 #File location and type
@@ -40,13 +42,12 @@ df = spark.read.format(file_type) \
 df.printSchema()
 ```
 
-Paste the output in RDS and build the view to dedupe records on camis (unique restaurant identifier) for the latest inspection_date 
+2. Paste the output in RDS and build the view to dedupe records on camis (unique restaurant identifier) for the latest inspection_date 
 
-Execute ```v_restaurants.sql```
-Results (RDS):
+3. Execute ```v_restaurants.sql```
 
+4. Verify Results (RDS):
 
---view a subset
 ```
 postgres=> select * from public.v_restaurants limit 100;
 ```
@@ -138,5 +139,3 @@ postgres=> select dba, count(violation_code) from public.inspection_snapshot gro
 3. UPSERT / MERGE into the destination table instead of TRUNCATE / INSERT to overwrite data that is updated, and perform no action if stays the same
 4. Better orchestration using Airflow, logging and alerting for the process
 5. Database credentials better secured in a conf file in Airflow
-
-
