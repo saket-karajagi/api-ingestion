@@ -51,7 +51,7 @@ Results (RDS):
 postgres=> select * from public.v_restaurants limit 100;
 ```
 
-##DQ Tests (RDS):
+## DQ Tests (RDS):
 
 
 1. Records count match the csv file:
