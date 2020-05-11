@@ -49,19 +49,21 @@ Results (RDS):
 --view a subset
 ```
 postgres=> select * from public.v_restaurants limit 100;
-DQ Tests (RDS):
 ```
 
-Records count match the csv file:
+##DQ Tests (RDS):
+
+
+1. Records count match the csv file:
 ```
 postgres=> select count(*) from public.v_restaurants;
 -[ RECORD 1 ]-
 count | 389447
 ```
-
+```
 389448 restaurants_2020-05-08.csv (includes header)
-
-No duplicates found in the dataset
+```
+2. No duplicates found in the dataset
 ```
 postgres=> select * from 
           (select camis, 
@@ -76,23 +78,23 @@ postgres=> select * from
 (0 rows)
 ```
 
-*Some fields such as grade, grade_date, score and address can be NULL which indicates that they’re not yet graded
-*Caveat from NYS Open Data: Because this dataset is compiled from several large administrative data systems, it contains some illogical values that could be a result of data entry or transfer errors. Data may also be missing
+3. Some fields such as grade, grade_date, score and address can be NULL which indicates that they’re not yet graded
+4. Caveat from NYS Open Data: Because this dataset is compiled from several large administrative data systems, it contains some illogical values that could be a result of data entry or transfer errors. Data may also be missing
 
-##Key Features:
-*ingest_api_to_rds.py is generic and can work on any API endpoint with minimal setup and its modules can be easily replicated to work on other API endpoints and sources such as csv, relational databases etc
-*The structure of the data from the API can evolve overtime. The ELT process creates a staging table to load the source data, converts the attributes into a json blob which is inserted into the “destination” table.
-*A view is designed using schema inference to cast the data to its accurate data types and dedupe the latest restaurant records. Records that do not contain certain attributes present in future data extracts appear NULL in the view.
-*The process is robust, tested for errors and potential breaking points, user-friendly and provides a verbose output as it executes
+## Key Features:
+1. ingest_api_to_rds.py is generic and can work on any API endpoint with minimal setup and its modules can be easily replicated to work on other API endpoints and sources such as csv, relational databases etc
+2. The structure of the data from the API can evolve overtime. The ELT process creates a staging table to load the source data, converts the attributes into a json blob which is inserted into the “destination” table.
+3. A view is designed using schema inference to cast the data to its accurate data types and dedupe the latest restaurant records. Records that do not contain certain attributes present in future data extracts appear NULL in the view.
+4. The process is robust, tested for errors and potential breaking points, user-friendly and provides a verbose output as it executes
 
-##Challenges / Constraints:
-*The end-to-end work on the entire exercise (including development and documentation) was time-boxed to 4 hours to simulate a real-life scenario with deadlines, and the goal was to produce the most robust, reusable process within the time limit with future room for extensibility
-*My initial approach was to extract the data from the API in json and ingest the json into a blob data type in Postgres RDS. This was unsuccessful as I ran into unescapable characters such as ‘\t’ and ‘ô’ while bulk loading using the COPY command in Postgres
-*UPSERT / MERGE in Postgres isn’t as straightforward and I spent time figuring out the syntax. It didn’t end up working since there is no primary key for the dataset
-*Schema inference is not completely accurate in pandas/spark as it only infers off of a chunk of the entire dataset. Some manual trial-and-error had to be performed to get the final view correct.
-*Some more error logging and testing could’ve been done to improve the process with more time
+## Challenges / Constraints:
+1. The end-to-end work on the entire exercise (including development and documentation) was time-boxed to 3 hours to simulate a real-life scenario with deadlines, and the goal was to produce the most robust, reusable process within the time limit with future room for extensibility
+2. My initial approach was to extract the data from the API in json and ingest the json into a blob data type in Postgres RDS. This was unsuccessful as I ran into unescapable characters such as ‘\t’ and ‘ô’ while bulk loading using the COPY command in Postgres
+3. UPSERT / MERGE in Postgres isn’t as straightforward and I spent time figuring out the syntax. It didn’t end up working since there is no primary key for the dataset
+4. Schema inference is not completely accurate in pandas/spark as it only infers off of a chunk of the entire dataset. Some manual trial-and-error had to be performed to get the final view correct.
+5. Some more error logging and testing could’ve been done to improve the process with more time
 
-Data Model / BI Extract:
+## Data Model / BI Extract:
 
 *Since the data extract came from an administrative system, it was unclear what the grain of the data was or what each row in the dataset represents.
 
@@ -106,35 +108,35 @@ join (select camis, max(inspection_date) as inspection_date
       group by 1) as b on a.camis = b.camis and a.inspection_date = b.inspection_date;
 ```
 
-##Sample analysis:
+## Sample analysis:
 
-*Inspection results aggregated by zipcode:
+1. Inspection results aggregated by zipcode:
 ```
 postgres=> select zipcode, grade, count(*) from public.inspection_snapshot group by 1, 2;
 ```
 
-*Violations performed by a particular restaurant on the latest inspection date
+2. Violations performed by a particular restaurant on the latest inspection date
 ```
 postgres=> select * from public.inspection_snapshot where dba = 'FELIDIA RESTAURANT';
 ```
 
-*Distribution of cuisines in NYC (American cuisine restaurants had the majority)
+3. Distribution of cuisines in NYC (American cuisine restaurants had the majority)
 
 ```
 postgres=> select cuisine, count(*) from public.inspection_snapshot group by 1;
 ```
 
-*Find the top 100 restaurants with the most violations
+4. Find the top 100 restaurants with the most violations
 
 ```
 postgres=> select dba, count(violation_code) from public.inspection_snapshot group by 1 order by 2 desc limit 100;
 ```
 
-##Future Improvements:
-*A dimensional model more specific to business use case, including storing the history using Slowly Changing Dimensions and each dimension in separate tables with data backfilled for time, date, address, cuisines, restaurants and grade
-*It would’ve been interesting to perform more interesting analysis such as which/how many restaurants had their grades improve overtime, or which zipcodes had the worst violations in the city
-*UPSERT / MERGE into the destination table instead of TRUNCATE / INSERT to overwrite data that is updated, and perform no action if stays the same
-*Better orchestration using Airflow, logging and alerting for the process
-*Database credentials better secured in a conf file in Airflow
+## Future Improvements:
+1. A dimensional model more specific to business use case, including storing the history using Slowly Changing Dimensions and each dimension in separate tables with data backfilled for time, date, address, cuisines, restaurants and grade
+2. It would’ve been interesting to perform more interesting analysis such as which/how many restaurants had their grades improve overtime, or which zipcodes had the worst violations in the city
+3. UPSERT / MERGE into the destination table instead of TRUNCATE / INSERT to overwrite data that is updated, and perform no action if stays the same
+4. Better orchestration using Airflow, logging and alerting for the process
+5. Database credentials better secured in a conf file in Airflow
 
 
