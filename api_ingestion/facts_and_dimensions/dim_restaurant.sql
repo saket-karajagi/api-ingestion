@@ -8,6 +8,6 @@ SELECT
 DISTINCT
 camis,
 dba
-FROM public.raw_restaurant_inspections
+FROM public.restaurant_inspections
 WHERE NOT EXISTS (SELECT * FROM public.dim_restaurant r1
                   WHERE r1.restaurant_id = camis);
