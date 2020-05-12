@@ -1,4 +1,4 @@
-molekule_db = {'user':'etl_admin',
+molekule_db = {'user':'******',
             'password':'******',
             'host': 'molekule.cdvvqsjgsryt.us-west-2.rds.amazonaws.com',
             'port':'5432',
