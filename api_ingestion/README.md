@@ -136,12 +136,23 @@ dim_restaurant.sql
 
 1. Inspection results aggregated by zipcode:
 ```
-postgres=> select zipcode, grade, count(*) from public.inspection_snapshot group by 1, 2;
+select 
+a.zipcode, 
+i.grade,
+count(*) 
+from 
+dim_address a
+LEFT JOIN fact_latest_inspections i on a.address_id = i.address_id
+group by 1, 2;
 ```
 
 2. Violations performed by a particular restaurant on the latest inspection date
 ```
-postgres=> select * from public.inspection_snapshot where dba = 'FELIDIA RESTAURANT';
+select *
+from 
+fact_latest_inspections a
+JOIN  dim_restaurant r on a.restaurant_id = r.restaurant_id
+where r.restaurant_name = 'FELIDIA RESTAURANT';
 ```
 
 _Not to throw anyone under the bus_
@@ -149,7 +160,13 @@ _Not to throw anyone under the bus_
 3. Distribution of cuisines in NYC
 
 ```
-postgres=> select cuisine, count(*) from public.inspection_snapshot group by 1;
+SELECT 
+cuisine_name,
+count(a.restaurant_id) as total_restaurants
+from 
+fact_latest_inspections a
+JOIN  dim_cuisine c on a.restaurant_id = c.cuisine_id
+GROUP BY 1;
 ```
 
 _American cuisine restaurants had the majority_
@@ -157,7 +174,13 @@ _American cuisine restaurants had the majority_
 4. Find the top 100 restaurants with the most violations
 
 ```
-postgres=> select dba, count(violation_code) from public.inspection_snapshot group by 1 order by 2 desc limit 100;
+SELECT 
+r.restaurant_name, 
+count(violation_code) 
+from dim_restaurant r
+JOIN fact_latest_inspections a on a.restaurant_id = c.cuisine_id
+group by 1 order by 2 desc 
+limit 100;
 ```
 
 _Ouch._
