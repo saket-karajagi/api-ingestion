@@ -73,7 +73,7 @@ postgres=> select * from public.raw_restaurant_inspections limit 100;
 
 1. Records count match the csv file:
 ```
-postgres=> select count(*) from public.v_restaurants;
+postgres=> select count(*) from public.raw_restaurant_inspections;
 -[ RECORD 1 ]-
 count | 389447
 ```
@@ -89,7 +89,7 @@ postgres=> select * from
                   score, 
                   grade, 
                   count(*) as count 
-          from restaurants_staging 
+          from public.raw_restaurant_inspections
           where violation_code is not null 
           group by 1, 2, 3, 4, 5) as a where count > 1;
 (0 rows)
