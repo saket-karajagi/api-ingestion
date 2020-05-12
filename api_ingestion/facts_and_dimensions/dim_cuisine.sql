@@ -12,6 +12,6 @@ SELECT
 nextval('cuisine_sequence'),
 cuisine
 FROM 
-(SELECT distinct cuisine FROM public.raw_restaurant_inspections) c
+(SELECT distinct cuisine FROM public.restaurant_inspections) c
 WHERE NOT EXISTS (SELECT * FROM public.cuisine c1
                   WHERE c1.cuisine_desc = c.cuisine);
