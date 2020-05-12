@@ -101,8 +101,9 @@ postgres=> select * from
 ## Key Features:
 1. ingest_api_to_rds.py is generic and can work on any API endpoint with minimal setup and its modules can be easily replicated to work on other API endpoints and sources such as csv, relational databases etc
 2. The structure of the data from the API can evolve overtime. The ELT process creates a staging table to load the source data, converts the attributes into a json blob which is inserted into the “destination” table. For extracting the data from NYC, [Open Data API (Socrata)](https://dev.socrata.com/foundry/data.cityofnewyork.us/43nn-pn8j) was used, however we can switch to using a generic requests library in future versions
-3. A view is designed using schema inference to cast the data to its accurate data types and dedupe the latest restaurant records. Records that do not contain certain attributes present in future data extracts appear NULL in the view.
-4. The process is robust, tested for errors and potential breaking points, user-friendly and provides a verbose output as it executes
+3. The process executes in a ALL or Nothing fashion. This can be leveraged to run the process multiple times to fetch the latest data from the API as it becomes available. The result tables only contain the overwritten information
+4. A view is designed using schema inference to cast the data to its accurate data types and dedupe the latest restaurant records. Records that do not contain certain attributes present in future data extracts appear NULL in the view.
+5. The process is robust, tested for errors and potential breaking points, user-friendly and provides a verbose output as it executes
 
 ## Challenges / Constraints:
 1. The end-to-end work on the entire exercise (including development and documentation) was time-boxed to 4-5 hours to simulate a real-life scenario with deadlines, and the goal was to produce the most robust, reusable process within the time limit with future room for extensibility
