@@ -35,9 +35,9 @@ SELECT DISTINCT
        a.violation_description,
        a.critical_flag,
        a.grade
-from public.raw_restaurant_inspections a
+from public.restaurant_inspections a
 join (select camis, max(inspection_date) as inspection_date 
-      from public.raw_restaurant_inspections where grade is not null
+      from public.restaurant_inspections where grade is not null
       group by 1) as b on a.camis = b.camis and a.inspection_date = b.inspection_date
 join dim_address da on (da.boro = a.boro AND da.building = a.building AND da.street = a.street AND da.zipcode = a.zipcode AND da.latitude = a.latitude AND da.longitude = a.longitude)
 join dim_restaurant dr on dr.restaurant_id = a.camis::varchar
