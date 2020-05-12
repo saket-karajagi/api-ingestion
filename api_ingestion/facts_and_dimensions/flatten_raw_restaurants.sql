@@ -1,4 +1,4 @@
-CREATE TABLE public.raw_restaurant_inspections AS
+CREATE TABLE public.restaurant_inspections AS
 SELECT
 CAST(data_blob->>'camis' as integer) as camis
 ,CAST(data_blob->>'dba' as varchar) as dba
@@ -26,4 +26,4 @@ CAST(data_blob->>'camis' as integer) as camis
 ,CAST(data_blob->>'bin' as integer) as bin
 ,CAST(data_blob->>'bbl' as varchar) as bbl
 ,CAST(data_blob->>'nta' as varchar) as nta
-FROM public.json_restaurant_inspections;
+FROM public.raw_restaurant_inspections;
