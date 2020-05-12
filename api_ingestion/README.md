@@ -6,6 +6,7 @@ The API ingestion process is a fully automated, generic/reproducible, production
 
 For demonstration, [NYC OpenData's API for Restaurant Inspection Results](https://data.cityofnewyork.us/Health/DOHMH-New-York-City-Restaurant-Inspection-Results/43nn-pn8j) are ingested in a public RDS instance for analysis
 
+
 ### Prerequisites:
 
 1. Python environment with additional libraries
@@ -116,7 +117,11 @@ postgres=> select * from
 
 ## Inspections Data Model:
 
-*Since the data extract came from an administrative system, it was unclear what the grain of the data was or what each row in the dataset represents.
+Description of dataset:
+
+> The dataset contains every sustained or not yet adjudicated violation citation from every full or special program inspection conducted up to three years prior to the most recent inspection for restaurants and college cafeterias in an active status on the RECORD DATE (date of the data pull). When an inspection results in more than one violation, values for associated fields are repeated for each additional violation record. Establishments are uniquely identified by their CAMIS (record ID) number.
+
+> Since the data extract came from an administrative system, it was unclear what the grain of the data was or what each row in the dataset represents.
 
 ![Inspections Data Model](data_model.png)
 
