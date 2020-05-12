@@ -37,6 +37,7 @@ The argument peeks the config.py file for the following required inputs:
 * API endpoint / URL
 * API access key
 * NYS dataset_id
+* RDS Credentials
 
 ### One-time Schema Inference (Optional)
 
@@ -64,8 +65,6 @@ df.printSchema()
 
 2. Paste the output in RDS and create ```flatten_raw_restaurants.sql```
 
-3. Execute ```flatten_raw_restaurants.sql``` on RDS
-
 
 ### Verify Results:
 
@@ -91,6 +90,7 @@ postgres=> select count(*) from public.restaurant_inspections;
 count | 389447
 ```
 ```
+wc -l restaurants_2020-05-08.csv
 389448 restaurants_2020-05-08.csv (includes header)
 ```
 2. No duplicates found in the dataset
