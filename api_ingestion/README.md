@@ -111,7 +111,7 @@ postgres=> select * from
 4. Schema inference is not completely accurate in pandas/spark as it only infers off of a chunk of the entire dataset. Some manual trial-and-error had to be performed to get the final view correct.
 5. Some more error logging and testing could’ve been done to improve the process with more time
 
-## Data Model:
+## Inspection Results Data Model:
 
 *Since the data extract came from an administrative system, it was unclear what the grain of the data was or what each row in the dataset represents.
 
