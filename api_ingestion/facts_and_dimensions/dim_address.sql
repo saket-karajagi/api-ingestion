@@ -23,7 +23,7 @@ a.zipcode,
 a.latitude,
 a.longitude
 FROM 
-(SELECT distinct boro, building, street, zipcode, latitude, longitude FROM public.raw_restaurant_inspections) a
+(SELECT distinct boro, building, street, zipcode, latitude, longitude FROM public.restaurant_inspections) a
 WHERE NOT EXISTS (SELECT * FROM public.dim_address a1
                   WHERE a1.boro = a.boro AND
                         a1.building = a.building AND
