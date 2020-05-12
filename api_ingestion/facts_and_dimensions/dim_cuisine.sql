@@ -1,3 +1,4 @@
+/*
 CREATE TABLE public.cuisine(
 cuisine_id SERIAL PRIMARY KEY,
 cuisine_desc varchar);
@@ -5,7 +6,7 @@ cuisine_desc varchar);
 CREATE SEQUENCE cuisine_sequence
   start 1
   increment 1;
-
+*/
 INSERT INTO public.dim_cuisine(cuisine_id, cuisine_desc)   
 SELECT
 nextval('cuisine_sequence'),

@@ -1,3 +1,4 @@
+/*
 CREATE TABLE public.dim_address
 (address_id serial primary key,
  boro varchar(20),
@@ -10,6 +11,7 @@ CREATE TABLE public.dim_address
 CREATE SEQUENCE address_sequence
   start 1
   increment 1;
+*/
 
 INSERT INTO public.dim_address (address_id, boro, building, street, zipcode, latitude, longitude)
 SELECT

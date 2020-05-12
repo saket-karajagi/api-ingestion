@@ -9,7 +9,7 @@ from datetime import datetime
 def field_builder(field_names, build_type):
     fields = ""
     last_field = field_names[-1]
-    for i in range(0, len(field_names) - 1):
+    for i in range(len(field_names) - 1):
         field = field_names[i]
         if build_type == 'destination':
             fields += f"{field}, "
@@ -57,13 +57,13 @@ def load_staging_object(cursor, file_name, table_name):
         print(load_staging_table_sql + '\n')
 
 def load_destination_object(cursor, field_names, table_name):
-    trunc_destination_table_sql = f"""TRUNCATE TABLE {table_name};"""
+    trunc_destination_table_sql = f"""TRUNCATE TABLE raw_{table_name};"""
     cursor.execute(trunc_destination_table_sql)
     print(trunc_destination_table_sql + '\n')
 
     fields = field_builder(field_names, build_type='destination')
 
-    load_destination_table_sql = f"""INSERT INTO {table_name}(data_blob)\
+    load_destination_table_sql = f"""INSERT INTO raw_{table_name}(data_blob)\
     SELECT\
     row_to_json((SELECT d FROM (SELECT {fields}) d)) AS data\
     FROM {table_name}_staging;"""
@@ -71,8 +71,19 @@ def load_destination_object(cursor, field_names, table_name):
     cursor.execute(load_destination_table_sql)
     print(load_destination_table_sql + '\n')
 
-##def transform_fact_and_dimensions(cursor):
-    
+    flatten_raw_restaurants_sql = open('flatten_raw_restaurants.sql', 'r')
+    cursor.execute(flatten_raw_restaurants_sql)
+    print(flatten_raw_restaurants_sql + '\n')
+
+def transform_fact_and_dimensions(cursor):
+    dim_address_sql = open('facts_and_dimensions/dim_address.sql','r')
+    dim_cuisine_sql = open('facts_and_dimensions/dim_cuisine.sql','r')
+    dim_restaurant_sql = open('facts_and_dimensions/dim_restaurant.sql','r')
+    fact_latest_inspections_sql = open('facts_and_dimensions/fact_latest_inspections.sql','r')
+    cursor.execute(dim_address_sql.read())
+    cursor.execute(dim_cuisine_sql.read())
+    cursor.execute(dim_restaurant_sql.read())
+    cursor.execute(fact_latest_inspections_sql.read())    
 
 def main():
     parser = argparse.ArgumentParser(description='Obtain dataset name')
@@ -101,6 +112,7 @@ def main():
     create_staging_object(cursor, field_names, dataset_to_ingest)
     load_staging_object(cursor, csv_file, dataset_to_ingest)
     load_destination_object(cursor, field_names, dataset_to_ingest)
+    transform_fact_and_dimensions(cursor)
 
     connection.commit()
 

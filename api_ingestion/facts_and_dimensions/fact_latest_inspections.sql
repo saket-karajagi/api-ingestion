@@ -1,4 +1,5 @@
-CREATE TABLE public.stg_fact_latest_inspections
+
+CREATE OR REPLACE TABLE public.stg_fact_latest_inspections
 (restaurant_id varchar,
  cuisine_id varchar,
  address_id varchar,
@@ -9,7 +10,7 @@ CREATE TABLE public.stg_fact_latest_inspections
  violation_description varchar,
  critical_flag varchar,
  grade varchar);
-
+/*
 CREATE TABLE public.fact_latest_inspections
 (restaurant_id varchar,
  cuisine_id varchar,
@@ -21,7 +22,7 @@ CREATE TABLE public.fact_latest_inspections
  violation_description varchar,
  critical_flag varchar,
  grade varchar);
-
+*/
 INSERT INTO public.stg_fact_latest_inspections (restaurant_id, cuisine_id, address_id, inspection_date, inspection_type, action, violation_code, violation_description, critical_flag, grade)
 SELECT DISTINCT
        dr.restaurant_id,
