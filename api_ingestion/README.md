@@ -96,7 +96,9 @@ postgres=> select * from
 ```
 
 3. Some fields such as grade, grade_date, score and address can be NULL which indicates that they’re not yet graded
-4. Caveat from NYS Open Data: Because this dataset is compiled from several large administrative data systems, it contains some illogical values that could be a result of data entry or transfer errors. Data may also be missing
+4. Visual inspection comparing the fields to the data dictionary to make sure all fields come through
+5. Caveat from NYS Open Data: Because this dataset is compiled from several large administrative data systems, it contains some illogical values that could be a result of data entry or transfer errors. Data may also be missing
+6. Spot checks to ensure no missing or incomplete data
 
 ## Key Features:
 1. ingest_api_to_rds.py is generic and can work on any API endpoint with minimal setup and its modules can be easily replicated to work on other API endpoints and sources such as csv, relational databases etc
