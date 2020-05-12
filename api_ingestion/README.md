@@ -6,6 +6,8 @@ The API ingestion process is a fully automated, generic/reproducible, production
 
 For demonstration, [NYC OpenData's API for Restaurant Inspection Results](https://data.cityofnewyork.us/Health/DOHMH-New-York-City-Restaurant-Inspection-Results/43nn-pn8j) are ingested in a public RDS instance for analysis
 
+
+
 ### Prerequisites:
 
 1. Python environment with additional libraries
@@ -18,11 +20,17 @@ pip install pandas
 
 3. RDS environment (provided) 
 
+
+
 ### HOW-TO Execute (Python, Spark and RDS):
 
 ```
 python ingest_api_to_rds.py -d restaurants
 ```
+
+
+Execution Time: ~15 minutes
+
 
 The argument peeks the config.py file for the following required inputs:
 
@@ -68,6 +76,8 @@ postgres=> select * from public.raw_restaurant_inspections limit 100;
 postgres=> select * from public.restaurant_inspections limit 100;
 ```
 
+
+
 ## Data Quality Tests:
 
 
@@ -96,13 +106,20 @@ postgres=> select * from
 ```
 
 3. Some fields such as grade, grade_date, score and address can be NULL which indicates that they’re not yet graded
-4. Caveat from NYS Open Data: Because this dataset is compiled from several large administrative data systems, it contains some illogical values that could be a result of data entry or transfer errors. Data may also be missing
+4. Visual inspection comparing the fields to the data dictionary to make sure all fields come through
+5. Caveat from NYS Open Data: Because this dataset is compiled from several large administrative data systems, it contains some illogical values that could be a result of data entry or transfer errors. Data may also be missing
+6. Spot checks to ensure no missing or incomplete data
+
+
 
 ## Key Features:
-1. ingest_api_to_rds.py is generic and can work on any API endpoint with minimal setup and its modules can be easily replicated to work on other API endpoints and sources such as csv, relational databases etc
-2. The structure of the data from the API can evolve overtime. The ELT process creates a staging table to load the source data, converts the attributes into a json blob which is inserted into the “destination” table. For extracting the data from NYC, [Open Data API (Socrata)](https://dev.socrata.com/foundry/data.cityofnewyork.us/43nn-pn8j) was used, however we can switch to using a generic requests library in future versions
-3. A view is designed using schema inference to cast the data to its accurate data types and dedupe the latest restaurant records. Records that do not contain certain attributes present in future data extracts appear NULL in the view.
-4. The process is robust, tested for errors and potential breaking points, user-friendly and provides a verbose output as it executes
+1. ingest_api_to_rds.py is generic and can work on **any API endpoint with minimal setup** and its modules can be easily replicated to work on other API endpoints and sources such as csv, relational databases etc
+2. **The schema of the data from the API can evolve overtime**. The ELT process creates a staging table to load the source data, converts the attributes into a json blob which is inserted into the “destination” table. For extracting the data from NYC, [Open Data API (Socrata)](https://dev.socrata.com/foundry/data.cityofnewyork.us/43nn-pn8j) was used, however we can switch to using a generic requests library in future versions
+3. The process executes in a ALL or Nothing fashion. **This enables it to be idempotent and automated to fetch the latest data from the API as it becomes available.** The result tables contain only contains the latest results from NYC OpenData. Although this is a good automation consideration, it makes the process suseptible to network hiccups and other interruptions
+4. A view is designed using schema inference to cast the data to its accurate data types and dedupe the latest restaurant records. Records that do not contain certain attributes present in future data extracts appear NULL in the view.
+5. The process is robust, tested for errors and potential breaking points, user-friendly and provides a verbose output as it executes
+
+
 
 ## Challenges / Constraints:
 1. The end-to-end work on the entire exercise (including development and documentation) was time-boxed to 4-5 hours to simulate a real-life scenario with deadlines, and the goal was to produce the most robust, reusable process within the time limit with future room for extensibility
@@ -111,9 +128,15 @@ postgres=> select * from
 4. Schema inference is not completely accurate in pandas/spark as it only infers off of a chunk of the entire dataset. Some manual trial-and-error had to be performed to get the final view correct.
 5. Some more error logging and testing could’ve been done to improve the process with more time
 
+
+
 ## Inspections Data Model:
 
-*Since the data extract came from an administrative system, it was unclear what the grain of the data was or what each row in the dataset represents.
+Description of dataset:
+
+> The dataset contains every sustained or not yet adjudicated violation citation from every full or special program inspection conducted up to three years prior to the most recent inspection for restaurants and college cafeterias in an active status on the RECORD DATE (date of the data pull). When an inspection results in more than one violation, values for associated fields are repeated for each additional violation record. Establishments are uniquely identified by their CAMIS (record ID) number.
+
+> Since the data extract came from an administrative system, it was unclear what the grain of the data was or what each row in the dataset represents.
 
 ![Inspections Data Model](data_model.png)
 
@@ -129,16 +152,29 @@ dim_cuisine.sql
 dim_restaurant.sql
 ```
 
+
+
 ## Analysis:
 
 1. Inspection results aggregated by zipcode:
 ```
-postgres=> select zipcode, grade, count(*) from public.inspection_snapshot group by 1, 2;
+select 
+a.zipcode, 
+i.grade,
+count(*) 
+from 
+dim_address a
+LEFT JOIN fact_latest_inspections i on a.address_id = i.address_id
+group by 1, 2;
 ```
 
 2. Violations performed by a particular restaurant on the latest inspection date
 ```
-postgres=> select * from public.inspection_snapshot where dba = 'FELIDIA RESTAURANT';
+select *
+from 
+fact_latest_inspections a
+JOIN  dim_restaurant r on a.restaurant_id = r.restaurant_id
+where r.restaurant_name = 'FELIDIA RESTAURANT';
 ```
 
 _Not to throw anyone under the bus_
@@ -146,7 +182,13 @@ _Not to throw anyone under the bus_
 3. Distribution of cuisines in NYC
 
 ```
-postgres=> select cuisine, count(*) from public.inspection_snapshot group by 1;
+SELECT 
+cuisine_name,
+count(a.restaurant_id) as total_restaurants
+from 
+fact_latest_inspections a
+JOIN  dim_cuisine c on a.restaurant_id = c.cuisine_id
+GROUP BY 1;
 ```
 
 _American cuisine restaurants had the majority_
@@ -154,10 +196,18 @@ _American cuisine restaurants had the majority_
 4. Find the top 100 restaurants with the most violations
 
 ```
-postgres=> select dba, count(violation_code) from public.inspection_snapshot group by 1 order by 2 desc limit 100;
+SELECT 
+r.restaurant_name, 
+count(violation_code) 
+from dim_restaurant r
+JOIN fact_latest_inspections a on a.restaurant_id = c.cuisine_id
+group by 1 order by 2 desc 
+limit 100;
 ```
 
 _Ouch._
+
+
 
 ## Planned Improvements:
 1. A dimensional model more specific to a business use case, including storing the history using Slowly Changing Dimensions and Conformed Dimensions backfilled for time, date, address, cuisines, restaurants and grade
