@@ -73,7 +73,7 @@ postgres=> select * from public.raw_restaurant_inspections limit 100;
 
 1. Records count match the csv file:
 ```
-postgres=> select count(*) from public.v_restaurants;
+postgres=> select count(*) from public.raw_restaurant_inspections;
 -[ RECORD 1 ]-
 count | 389447
 ```
@@ -89,7 +89,7 @@ postgres=> select * from
                   score, 
                   grade, 
                   count(*) as count 
-          from restaurants_staging 
+          from public.raw_restaurant_inspections
           where violation_code is not null 
           group by 1, 2, 3, 4, 5) as a where count > 1;
 (0 rows)
@@ -111,18 +111,22 @@ postgres=> select * from
 4. Schema inference is not completely accurate in pandas/spark as it only infers off of a chunk of the entire dataset. Some manual trial-and-error had to be performed to get the final view correct.
 5. Some more error logging and testing could’ve been done to improve the process with more time
 
-## Data Model:
+## Inspections Data Model:
 
 *Since the data extract came from an administrative system, it was unclear what the grain of the data was or what each row in the dataset represents.
 
-*We created a Fact table on top of the dataset to show the latest inspection results by date for every restaurant.
+![Inspections Data Model](https://pasteboard.co/J7XBT39.png)
+
+FACT Table: We created a Fact table on top of the dataset to show the latest inspection results by date for every restaurant. Each record in the Fact table represent a violation from the restaurant on the last inspection. The fact table is constructed using the file below:
 ```
-postgres=> create view public.inspection_snapshot as
-select a.*
-from public.v_restaurants a 
-join (select camis, max(inspection_date) as inspection_date 
-      from public.v_restaurants where grade is not null 
-      group by 1) as b on a.camis = b.camis and a.inspection_date = b.inspection_date;
+fact_latest_inspections.sql
+```
+
+Dimensions: The various descriptive attributes that the inspection results can be sliced and diced across include Restaurant, Address, and Cuisine. The are constructed in the files below:
+```
+dim_address.sql
+dim_cuisine.sql
+dim_restaurant.sql
 ```
 
 ## Analysis:
