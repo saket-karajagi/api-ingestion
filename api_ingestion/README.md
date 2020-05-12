@@ -66,7 +66,8 @@ df.printSchema()
 
 3. Execute ```flatten_raw_restaurants.sql``` on RDS
 
-4. Verify Results:
+
+### Verify Results:
 
 ```
 --raw JSON results
