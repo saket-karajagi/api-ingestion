@@ -7,25 +7,25 @@ from config import molekule_db, api_config
 from datetime import datetime
 
 def field_builder(field_names, build_type):
-    field_builder = ""
+    fields = ""
     last_field = field_names[-1]
     for i in range(0, len(field_names) - 1):
         field = field_names[i]
         if build_type == 'destination':
-            field_builder += f"{field}, "
+            fields += f"{field}, "
         elif build_type == 'staging':
-            field_builder += f'"{field}" varchar, '
+            fields += f'"{field}" varchar, '
     if build_type == 'destination':
-        field_builder += f"{last_field}"
+        fields += f"{last_field}"
     elif build_type == 'staging':
-        field_builder += f'"{last_field}" varchar'
+        fields += f'"{last_field}" varchar'
         
-    return field_builder
+    return fields
 
 def extract_api(url, key, dataset_id):
     date = datetime.today().strftime('%Y-%m-%d')
     client = Socrata(f"{url}", f"{key}")
-    print("extracting data from NYC Open Data\n")
+    print("extracting data from NYC Open Data . .\n")
     results = client.get_all(f"{dataset_id}", content_type="csv")
 
     row_count = 0 
@@ -45,7 +45,7 @@ def create_staging_object(cursor, field_names, table_name):
     fields = field_builder(field_names, build_type='staging')
 
     print("creating staging table\n")
-    create_staging_table_sql = f"""CREATE TABLE {table_name}_staging({field_builder});"""
+    create_staging_table_sql = f"""CREATE TABLE {table_name}_staging({fields});"""
     print(create_staging_table_sql + '\n')
     cursor.execute(create_staging_table_sql)
 
@@ -65,13 +65,13 @@ def load_destination_object(cursor, field_names, table_name):
 
     load_destination_table_sql = f"""INSERT INTO {table_name}(data_blob)\
     SELECT\
-    row_to_json((SELECT d FROM (SELECT {field_builder}) d)) AS data\
+    row_to_json((SELECT d FROM (SELECT {fields}) d)) AS data\
     FROM {table_name}_staging;"""
     print("loading destination table")
     cursor.execute(load_destination_table_sql)
     print(load_destination_table_sql + '\n')
 
-def transform_fact_and_dimensions(cursor):
+##def transform_fact_and_dimensions(cursor):
     
 
 def main():
