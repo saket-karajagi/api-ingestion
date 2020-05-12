@@ -62,10 +62,10 @@ df.printSchema()
 
 ```
 --raw JSON results
-postgres=> select * from public.json_restaurant_inspections limit 100;
+postgres=> select * from public.raw_restaurant_inspections limit 100;
 
 --flattened results
-postgres=> select * from public.raw_restaurant_inspections limit 100;
+postgres=> select * from public.restaurant_inspections limit 100;
 ```
 
 ## Data Quality Tests:
@@ -73,7 +73,7 @@ postgres=> select * from public.raw_restaurant_inspections limit 100;
 
 1. Records count match the csv file:
 ```
-postgres=> select count(*) from public.raw_restaurant_inspections;
+postgres=> select count(*) from public.restaurant_inspections;
 -[ RECORD 1 ]-
 count | 389447
 ```
@@ -89,7 +89,7 @@ postgres=> select * from
                   score, 
                   grade, 
                   count(*) as count 
-          from public.raw_restaurant_inspections
+          from public.restaurant_inspections
           where violation_code is not null 
           group by 1, 2, 3, 4, 5) as a where count > 1;
 (0 rows)
