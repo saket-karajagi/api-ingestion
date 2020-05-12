@@ -69,6 +69,8 @@ df.printSchema()
 
 ### Verify Results:
 
+Connect to RDS using supplied credentials
+
 ```
 --raw JSON results
 postgres=> select * from public.raw_restaurant_inspections limit 100;
