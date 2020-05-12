@@ -28,6 +28,10 @@ pip install pandas
 python ingest_api_to_rds.py -d restaurants
 ```
 
+
+Execution Time: ~15 minutes
+
+
 The argument peeks the config.py file for the following required inputs:
 
 * API endpoint / URL
