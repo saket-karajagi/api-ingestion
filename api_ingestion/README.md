@@ -111,9 +111,11 @@ postgres=> select * from
 4. Schema inference is not completely accurate in pandas/spark as it only infers off of a chunk of the entire dataset. Some manual trial-and-error had to be performed to get the final view correct.
 5. Some more error logging and testing could’ve been done to improve the process with more time
 
-## Inspection Results Data Model:
+## Inspections Data Model:
 
 *Since the data extract came from an administrative system, it was unclear what the grain of the data was or what each row in the dataset represents.
+
+![Inspections Data Model][https://pasteboard.co/J7XBT39.png]
 
 FACT Table: We created a Fact table on top of the dataset to show the latest inspection results by date for every restaurant. Each record in the Fact table represent a violation from the restaurant on the last inspection. The fact table is constructed using the file below:
 ```
