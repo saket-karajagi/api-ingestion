@@ -115,14 +115,16 @@ postgres=> select * from
 
 *Since the data extract came from an administrative system, it was unclear what the grain of the data was or what each row in the dataset represents.
 
-*We created a Fact table on top of the dataset to show the latest inspection results by date for every restaurant.
+FACT Table: We created a Fact table on top of the dataset to show the latest inspection results by date for every restaurant. Each record in the Fact table represent a violation from the restaurant on the last inspection. The fact table is constructed using the file below:
 ```
-postgres=> create view public.inspection_snapshot as
-select a.*
-from public.v_restaurants a 
-join (select camis, max(inspection_date) as inspection_date 
-      from public.v_restaurants where grade is not null 
-      group by 1) as b on a.camis = b.camis and a.inspection_date = b.inspection_date;
+fact_latest_inspections.sql
+```
+
+Dimensions: The various descriptive attributes that the inspection results can be sliced and diced across include Restaurant, Address, and Cuisine. The are constructed in the files below:
+```
+dim_address.sql
+dim_cuisine.sql
+dim_restaurant.sql
 ```
 
 ## Analysis:
