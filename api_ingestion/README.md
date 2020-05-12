@@ -38,7 +38,7 @@ The argument peeks the config.py file for the following required inputs:
 * API access key
 * NYS dataset_id
 
-### One-time Schema Inference
+### One-time Schema Inference (Optional)
 
 1. Spark Environment:
 
