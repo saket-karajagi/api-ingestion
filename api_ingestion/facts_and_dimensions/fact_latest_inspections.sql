@@ -50,7 +50,7 @@ INSERT INTO public.fact_latest_inspections
 SELECT DISTINCT *
 FROM public.stg_fact_latest_inspections a
 WHERE NOT EXISTS (SELECT * from public.fact_latest_inspections f1
-                  WHERE COALESCE(f1.restaurant_id, 9999999999999) = COALESCE(a.restaurant_id, 9999999999999) AND
+                  WHERE COALESCE(f1.restaurant_id, 9999999999999) = COALESCE(a.restaurant_id, 9999999999999) AND #constraint
                         COALESCE(f1.cuisine_id, 9999999999999) = COALESCE(a.cuisine_id, 9999999999999) AND
                         COALESCE(f1.address_id, 9999999999999) = COALESCE(a.address_id, 9999999999999) AND
                         COALESCE(f1.inspection_date, '2018-08-13 00:00:00') = COALESCE(a.inspection_date, '2018-08-13 00:00:00') AND
