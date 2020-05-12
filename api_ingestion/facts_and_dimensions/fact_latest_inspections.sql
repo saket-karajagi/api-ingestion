@@ -1,8 +1,9 @@
+DROP TABLE public.stg_fact_latest_inspections;
 
-CREATE OR REPLACE TABLE public.stg_fact_latest_inspections
-(restaurant_id varchar,
- cuisine_id varchar,
- address_id varchar,
+CREATE TABLE public.stg_fact_latest_inspections
+(restaurant_id integer,
+ cuisine_id integer,
+ address_id integer,
  inspection_date date,
  inspection_type varchar,
  action varchar,
@@ -10,11 +11,12 @@ CREATE OR REPLACE TABLE public.stg_fact_latest_inspections
  violation_description varchar,
  critical_flag varchar,
  grade varchar);
+
 /*
 CREATE TABLE public.fact_latest_inspections
-(restaurant_id varchar,
- cuisine_id varchar,
- address_id varchar,
+(restaurant_id integer,
+ cuisine_id integer,
+ address_id integer,
  inspection_date date,
  inspection_type varchar,
  action varchar,
@@ -23,6 +25,7 @@ CREATE TABLE public.fact_latest_inspections
  critical_flag varchar,
  grade varchar);
 */
+
 INSERT INTO public.stg_fact_latest_inspections (restaurant_id, cuisine_id, address_id, inspection_date, inspection_type, action, violation_code, violation_description, critical_flag, grade)
 SELECT DISTINCT
        dr.restaurant_id,
@@ -40,16 +43,16 @@ join (select camis, max(inspection_date) as inspection_date
       from public.restaurant_inspections where grade is not null
       group by 1) as b on a.camis = b.camis and a.inspection_date = b.inspection_date
 join dim_address da on (da.boro = a.boro AND da.building = a.building AND da.street = a.street AND da.zipcode = a.zipcode AND da.latitude = a.latitude AND da.longitude = a.longitude)
-join dim_restaurant dr on dr.restaurant_id = a.camis::varchar
+join dim_restaurant dr on dr.restaurant_id = a.camis
 join dim_cuisine dc on dc.cuisine_desc = a.cuisine;
 
 INSERT INTO public.fact_latest_inspections
 SELECT DISTINCT *
 FROM public.stg_fact_latest_inspections a
 WHERE NOT EXISTS (SELECT * from public.fact_latest_inspections f1
-                  WHERE COALESCE(f1.restaurant_id, 'NA') = COALESCE(a.restaurant_id, 'NA') AND
-                        COALESCE(f1.cuisine_id, 'NA') = COALESCE(a.cuisine_id, 'NA') AND
-                        COALESCE(f1.address_id, 'NA') = COALESCE(a.address_id, 'NA') AND
+                  WHERE COALESCE(f1.restaurant_id, '000') = COALESCE(a.restaurant_id, '000') AND
+                        COALESCE(f1.cuisine_id, '000') = COALESCE(a.cuisine_id, '000') AND
+                        COALESCE(f1.address_id, '000') = COALESCE(a.address_id, '000') AND
                         COALESCE(f1.inspection_date, '2018-08-13 00:00:00') = COALESCE(a.inspection_date, '2018-08-13 00:00:00') AND
                         COALESCE(f1.inspection_type, 'NA') = COALESCE(a.inspection_type, 'NA') AND
                         COALESCE(f1.action, 'NA') = COALESCE(a.action, 'NA') AND

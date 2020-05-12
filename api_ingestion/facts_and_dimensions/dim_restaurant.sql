@@ -1,6 +1,6 @@
 /*
 CREATE TABLE public.dim_restaurant
-(restaurant_id varchar primary key,
+(restaurant_id integer primary key,
  restaurant_name varchar);
 */
 INSERT INTO public.dim_restaurant(restaurant_id, restaurant_name)
