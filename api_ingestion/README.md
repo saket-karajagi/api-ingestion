@@ -25,7 +25,7 @@ pip install pandas
 ### HOW-TO Execute (Python, Spark and RDS):
 
 ```
-python ingest_api_to_rds.py -d restaurants
+python ingest_api_to_rds.py -d restaurant_inspections
 ```
 
 
