@@ -105,7 +105,7 @@ postgres=> select * from
 4. The process is robust, tested for errors and potential breaking points, user-friendly and provides a verbose output as it executes
 
 ## Challenges / Constraints:
-1. The end-to-end work on the entire exercise (including development and documentation) was time-boxed to 3 hours to simulate a real-life scenario with deadlines, and the goal was to produce the most robust, reusable process within the time limit with future room for extensibility
+1. The end-to-end work on the entire exercise (including development and documentation) was time-boxed to 4-5 hours to simulate a real-life scenario with deadlines, and the goal was to produce the most robust, reusable process within the time limit with future room for extensibility
 2. My initial approach was to extract the data from the API in json and ingest the json into a blob data type in Postgres RDS. This was unsuccessful as I ran into unescapable characters such as ‘\t’ and ‘ô’ while bulk loading using the COPY command in Postgres
 3. UPSERT / MERGE in Postgres isn’t as straightforward and I spent time figuring out the syntax. It didn’t end up working since there is no primary key for the dataset
 4. Schema inference is not completely accurate in pandas/spark as it only infers off of a chunk of the entire dataset. Some manual trial-and-error had to be performed to get the final view correct.
@@ -160,8 +160,8 @@ postgres=> select dba, count(violation_code) from public.inspection_snapshot gro
 _Ouch._
 
 ## Planned Improvements:
-1. A dimensional model more specific to business use case, including storing the history using Slowly Changing Dimensions and each dimension in separate tables with data backfilled for time, date, address, cuisines, restaurants and grade
-2. It would’ve been interesting to perform more interesting analysis such as which/how many restaurants had their grades improve overtime, or which zipcodes had the worst violations in the city
-3. UPSERT / MERGE into the destination table instead of TRUNCATE / INSERT to overwrite data that is updated, and perform no action if stays the same
+1. A dimensional model more specific to a business use case, including storing the history using Slowly Changing Dimensions and Conformed Dimensions backfilled for time, date, address, cuisines, restaurants and grade
+2. It would’ve been interesting to perform more analysis such as which/how many restaurants had their grades improve overtime, or which zipcodes had the worst violations in the city
+3. UPSERT / MERGE into the destination table instead of INSERT /SELECT WHERE NOT EXISTS to overwrite data that is updated, and perform no action if stays the same
 4. Better orchestration using Airflow, logging and alerting for the process
 5. Database credentials better secured in a conf file in Airflow
