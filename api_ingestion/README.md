@@ -183,12 +183,12 @@ _Not to throw anyone under the bus_
 
 ```
 SELECT 
-cuisine_name,
+c.cuisine_desc,
 count(a.restaurant_id) as total_restaurants
 from 
 fact_latest_inspections a
-JOIN  dim_cuisine c on a.restaurant_id = c.cuisine_id
-GROUP BY 1;
+JOIN  dim_cuisine c on a.cuisine_id = c.cuisine_id
+GROUP BY 1 ORDER BY 2 DESC;
 ```
 
 _American cuisine restaurants had the majority_
@@ -200,7 +200,7 @@ SELECT
 r.restaurant_name, 
 count(violation_code) 
 from dim_restaurant r
-JOIN fact_latest_inspections a on a.restaurant_id = c.cuisine_id
+JOIN fact_latest_inspections a on a.restaurant_id = r.restaurant_id
 group by 1 order by 2 desc 
 limit 100;
 ```
