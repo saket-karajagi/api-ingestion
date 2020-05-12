@@ -7,6 +7,7 @@ The API ingestion process is a fully automated, generic/reproducible, production
 For demonstration, [NYC OpenData's API for Restaurant Inspection Results](https://data.cityofnewyork.us/Health/DOHMH-New-York-City-Restaurant-Inspection-Results/43nn-pn8j) are ingested in a public RDS instance for analysis
 
 
+
 ### Prerequisites:
 
 1. Python environment with additional libraries
@@ -18,6 +19,8 @@ pip install pandas
 2. Access to a Spark environment (not provided)
 
 3. RDS environment (provided) 
+
+
 
 ### HOW-TO Execute (Python, Spark and RDS):
 
@@ -69,6 +72,8 @@ postgres=> select * from public.raw_restaurant_inspections limit 100;
 postgres=> select * from public.restaurant_inspections limit 100;
 ```
 
+
+
 ## Data Quality Tests:
 
 
@@ -101,6 +106,8 @@ postgres=> select * from
 5. Caveat from NYS Open Data: Because this dataset is compiled from several large administrative data systems, it contains some illogical values that could be a result of data entry or transfer errors. Data may also be missing
 6. Spot checks to ensure no missing or incomplete data
 
+
+
 ## Key Features:
 1. ingest_api_to_rds.py is generic and can work on **any API endpoint with minimal setup** and its modules can be easily replicated to work on other API endpoints and sources such as csv, relational databases etc
 2. **The schema of the data from the API can evolve overtime**. The ELT process creates a staging table to load the source data, converts the attributes into a json blob which is inserted into the “destination” table. For extracting the data from NYC, [Open Data API (Socrata)](https://dev.socrata.com/foundry/data.cityofnewyork.us/43nn-pn8j) was used, however we can switch to using a generic requests library in future versions
@@ -108,12 +115,16 @@ postgres=> select * from
 4. A view is designed using schema inference to cast the data to its accurate data types and dedupe the latest restaurant records. Records that do not contain certain attributes present in future data extracts appear NULL in the view.
 5. The process is robust, tested for errors and potential breaking points, user-friendly and provides a verbose output as it executes
 
+
+
 ## Challenges / Constraints:
 1. The end-to-end work on the entire exercise (including development and documentation) was time-boxed to 4-5 hours to simulate a real-life scenario with deadlines, and the goal was to produce the most robust, reusable process within the time limit with future room for extensibility
 2. My initial approach was to extract the data from the API in json and ingest the json into a blob data type in Postgres RDS. This was unsuccessful as I ran into unescapable characters such as ‘\t’ and ‘ô’ while bulk loading using the COPY command in Postgres
 3. UPSERT / MERGE in Postgres isn’t as straightforward and I spent time figuring out the syntax. It didn’t end up working since there is no primary key for the dataset
 4. Schema inference is not completely accurate in pandas/spark as it only infers off of a chunk of the entire dataset. Some manual trial-and-error had to be performed to get the final view correct.
 5. Some more error logging and testing could’ve been done to improve the process with more time
+
+
 
 ## Inspections Data Model:
 
@@ -136,6 +147,8 @@ dim_address.sql
 dim_cuisine.sql
 dim_restaurant.sql
 ```
+
+
 
 ## Analysis:
 
@@ -189,6 +202,8 @@ limit 100;
 ```
 
 _Ouch._
+
+
 
 ## Planned Improvements:
 1. A dimensional model more specific to a business use case, including storing the history using Slowly Changing Dimensions and Conformed Dimensions backfilled for time, date, address, cuisines, restaurants and grade
