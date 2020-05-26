@@ -27,7 +27,7 @@ def extract_api(url, key, dataset_id):
     client = Socrata(f"{url}", f"{key}")
     print("extracting data from NYC Open Data . .\n")
     results = client.get_all(f"{dataset_id}", content_type="csv")
-
+    #write data to local file
     row_count = 0 
     with open(f'restaurants_{date}.csv', 'w') as f:
         writer = csv.writer(f)
