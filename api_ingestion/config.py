@@ -1,6 +1,6 @@
 molekule_db = {'user':'******',
             'password':'******',
-            'host': 'molekule.cdvvqsjgsryt.us-west-2.rds.amazonaws.com',
+            'host': '*****',
             'port':'5432',
             'database':'postgres'
 }
