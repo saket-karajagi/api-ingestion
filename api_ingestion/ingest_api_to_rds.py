@@ -3,7 +3,7 @@ import csv
 import psycopg2
 import pandas as pd
 from sodapy import Socrata
-from config import pager_db, api_config
+from config import molekule_db, api_config
 from datetime import datetime
 
 def field_builder(field_names, build_type):
@@ -96,10 +96,10 @@ def main():
 
     ##connector to Amazon RDS where data is ingested
     connection = psycopg2.connect(user = pager_db['user'],
-      password = pager_db['password'],
-      host = pager_db['host'],
-      port = pager_db['port'],
-      database = pager_db['database'])
+      password = molekule_db['password'],
+      host = molekule_db['host'],
+      port = molekule_db['port'],
+      database = molekule_db['database'])
 
     csv_file = extract_api(url, key, dataset_id)
     
