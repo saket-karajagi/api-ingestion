@@ -95,7 +95,7 @@ def main():
     url, key, dataset_id = dataset_config['url'], dataset_config['app_key'], dataset_config['dataset_id']
 
     ##connector to Amazon RDS where data is ingested
-    connection = psycopg2.connect(user = pager_db['user'],
+    connection = psycopg2.connect(user = molekule_db['user'],
       password = molekule_db['password'],
       host = molekule_db['host'],
       port = molekule_db['port'],
