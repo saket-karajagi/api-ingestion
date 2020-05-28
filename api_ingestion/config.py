@@ -1,4 +1,4 @@
-molekule_db = {'user':'******',
+molekule_db = {'user':'etl_admin',
             'password':'******',
             'host': '*****',
             'port':'5432',
